@@ -18,7 +18,6 @@ router.route("/getCart/:userId").get(async (req, res, next) => {
               "brand",
               "description",
               "categoryId",
-              "id",
             ],
           },
         },
