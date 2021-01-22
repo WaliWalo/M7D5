@@ -56,36 +56,38 @@ router.route("/:productId/:userId").post(async (req, res, next) => {
   }
 });
 
-router
-  .route("/update/:cartId")
-  .put(async (req, res, next) => {
-    try {
-      const updatedData = await Cart.update(req.body, {
-        returning: true,
-        plain: true,
-        where: {
-          id: req.params.cartId,
-        },
-      });
-      res.send(updatedData[1]);
-    } catch (error) {
-      next(error);
-    }
-  })
-  .delete(async (req, res, next) => {
-    try {
-      await Cart.destroy({ where: { id: req.params.cartId } }).then(
-        (rowsDeleted) => {
-          if (rowsDeleted > 0) {
-            res.send("Deleted");
-          } else {
-            res.send("No match");
-          }
+router.route("/update/:productId/:userId").delete(async (req, res, next) => {
+  try {
+    const cart = await Cart.findOne({
+      where: { productId: req.params.productId, userId: req.params.userId },
+    });
+
+    await Cart.destroy({ where: { id: cart.id } }).then((rowsDeleted) => {
+      if (rowsDeleted > 0) {
+        res.send("Deleted");
+      } else {
+        res.send("No match");
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.route("/update/:cartId").delete(async (req, res, next) => {
+  try {
+    await Cart.destroy({ where: { id: req.params.cartId } }).then(
+      (rowsDeleted) => {
+        if (rowsDeleted > 0) {
+          res.send("Deleted");
+        } else {
+          res.send("No match");
         }
-      );
-    } catch (error) {
-      next(error);
-    }
-  });
+      }
+    );
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;
