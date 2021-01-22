@@ -4,6 +4,19 @@ const Product = require("../../db").Product;
 const Category = require("../../db").Category;
 const { Op } = require("sequelize");
 
+const multer = require("multer");
+const cloudinary = require("./cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "Strive Products",
+  },
+});
+
+const cloudinaryMulter = multer({ storage: storage });
+
 router
   .route("/")
   .get(async (req, res, next) => {
@@ -33,14 +46,26 @@ router
       next(error);
     }
   })
-  .post(async (req, res, next) => {
+  .post(cloudinaryMulter.single("image"), async (req, res, next) => {
     try {
-      const newElement = await Product.create(req.body);
+      const newProduct = { ...req.body, img: req.file.path };
+      const newElement = await Product.create(newProduct);
       res.send(newElement);
     } catch (error) {
       next(error);
     }
   });
+//   .post(async (req, res, next) => {
+//     try {
+//       const newElement = await Product.create(req.body);
+//       res.send(newElement);
+//     } catch (error) {
+//       next(error);
+//     }
+//   });
+
+//  const newProduct = { ...req.body, img: req.file.path };
+//cloudinaryMulter.single("image"),
 
 router
   .route("/:id")
